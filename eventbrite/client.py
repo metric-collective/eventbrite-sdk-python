@@ -2,7 +2,9 @@
 from __future__ import unicode_literals
 from platform import platform
 
-import requests
+# import requests
+import urllib
+from google.appengine.api import urlfetch
 
 from .access_methods import AccessMethodsMixin
 from .compat import json, string_type
@@ -18,6 +20,46 @@ from .utils import (
     get_webhook_from_request,
     EVENTBRITE_API_URL
 )
+
+
+class requests():
+
+    @classmethod
+    def _request(path, headers=None, params=None, method="get"):
+        url = path
+        resp = urlfetch(url, headers=headers)
+        return RequestsShim(resp, url)
+
+    @classmethod
+    def get(path, headers=None, params=None):
+        return self._request(path, 
+            headers=headers, params=params)
+
+    @classmethod
+    def post(path, headers=None, params=None):
+        return self._request(path, 
+            headers=headers, params=params, method="POST")
+
+    @classmethod
+    def delete(path, headers=None, params=None):
+        return self._request(path, 
+            headers=headers, params=params, method="DELETE")
+
+class RequestsShim():
+
+    def __init__(self, resp, url):
+        self.status_code = resp.status_code
+        self.text = resp.content
+        self.headers = resp.headers
+        self.url = url
+
+        self.request = None
+        self.reason = "ok"
+        self.ok = True
+        self.elapsed = 120
+
+    def json(self):
+        return json.loads(self.text)
 
 
 class Eventbrite(AccessMethodsMixin):
@@ -36,7 +78,7 @@ class Eventbrite(AccessMethodsMixin):
             "Authorization": "Bearer {0}".format(self.oauth_token),
             "User-Agent": "eventbrite-python-sdk {version} ({system})".format(
                 version=__version__,
-                system=platform(),
+                system="",
             )
         }
         return headers
@@ -72,18 +114,31 @@ class Eventbrite(AccessMethodsMixin):
         else:
             # Anything else is None
             data['expand'] = 'none'
-        return requests.get(path, headers=headers, params=data or {})
+        # return requests.get(path, headers=headers, params=data or {})
+        url = path
+        if data:
+            url = url + "?" + urllib.urlencode(data)
+        resp = urlfetch.Fetch(url, headers=headers, method="GET")
+        return RequestsShim(resp, url)
 
     @objectify
     def post(self, path, data=None):
         path = format_path(path, self.eventbrite_api_url)
         json_data = json.dumps(data or {})
-        return requests.post(path, headers=self.headers, data=json_data)
+        # return requests.post(path, headers=self.headers, data=json_data)
+        url = path
+        resp = urlfetch.Fetch(url, headers=self.headers, method="POST", payload=json_data)
+        return RequestsShim(resp, url)
 
     @objectify
     def delete(self, path, data=None):
         path = format_path(path, self.eventbrite_api_url)
-        return requests.delete(path, headers=self.headers, data=data or {})
+        # return requests.delete(path, headers=self.headers, data=data or {})
+        url = path
+        if params:
+            url = url + "?" + urllib.urlencode(data)
+        resp = urlfetch.Fetch(url, headers=headers, method="DELETE")
+        return RequestsShim(resp, url)
 
     ############################
     #

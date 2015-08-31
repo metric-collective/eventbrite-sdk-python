@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from requests.exceptions import ConnectionError
-
+from google.appengine.api import urlfetch
 
 class EventbriteException(Exception):
     pass
@@ -23,9 +22,10 @@ class UnsupportedEndpoint(EventbriteException):
     pass
 
 
-class InternetConnectionError(ConnectionError):
+# class InternetConnectionError(ConnectionError):
+class InternetConnectionError(urlfetch.DownloadError):
     """
-    Wraps requests.exceptions.ConnectionError in order to provide a more
+    Wraps urlfetch.DownloadError in order to provide a more
     intuitively named exception.
     """
     pass

@@ -1,6 +1,6 @@
 import functools
 
-import requests
+# import requests
 
 from .exceptions import InternetConnectionError
 from .models import EventbriteObject
@@ -16,7 +16,7 @@ def objectify(func):
     def wrapper(*args, **kwargs):
         try:
             payload = func(*args, **kwargs)
-        except requests.exceptions.ConnectionError as e:
-            raise InternetConnectionError(e)
+        except urlfetch.DownloadError as e:
+            raise InternetConnectionError()
         return EventbriteObject.create(payload)
     return wrapper
