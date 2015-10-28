@@ -2,6 +2,8 @@ import functools
 
 # import requests
 
+from google.appengine.api import urlfetch
+
 from .exceptions import InternetConnectionError
 from .models import EventbriteObject
 
