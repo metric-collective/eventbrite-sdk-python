@@ -19,6 +19,6 @@ def objectify(func):
         try:
             payload = func(*args, **kwargs)
         except urlfetch.DownloadError as e:
-            raise InternetConnectionError()
+            raise InternetConnectionError(e)
         return EventbriteObject.create(payload)
     return wrapper

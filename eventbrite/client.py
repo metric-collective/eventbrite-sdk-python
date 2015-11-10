@@ -118,7 +118,7 @@ class Eventbrite(AccessMethodsMixin):
         url = path
         if data:
             url = url + "?" + urllib.urlencode(data)
-        resp = urlfetch.Fetch(url, headers=headers, method="GET")
+        resp = urlfetch.Fetch(url, headers=headers, method="GET", deadline=60)
         return RequestsShim(resp, url)
 
     @objectify
@@ -127,7 +127,7 @@ class Eventbrite(AccessMethodsMixin):
         json_data = json.dumps(data or {})
         # return requests.post(path, headers=self.headers, data=json_data)
         url = path
-        resp = urlfetch.Fetch(url, headers=self.headers, method="POST", payload=json_data)
+        resp = urlfetch.Fetch(url, headers=self.headers, method="POST", payload=json_data, deadline=60)
         return RequestsShim(resp, url)
 
     @objectify
@@ -137,7 +137,7 @@ class Eventbrite(AccessMethodsMixin):
         url = path
         if params:
             url = url + "?" + urllib.urlencode(data)
-        resp = urlfetch.Fetch(url, headers=headers, method="DELETE")
+        resp = urlfetch.Fetch(url, headers=headers, method="DELETE", deadline=60)
         return RequestsShim(resp, url)
 
     ############################
